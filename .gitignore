@@ -1,0 +1,24 @@
+# ---- 构建产物：运行 build.py 会自动生成，不入库 ----
+/卡册/
+/资料库.html
+/index.html
+
+# ---- 你自己的卡片包：通常含教材/讲义版权内容，不入库 ----
+/源文件/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ---- 编辑器与系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~

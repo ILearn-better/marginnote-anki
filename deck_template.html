@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>__TITLE__</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:#f5f6f8;color:#1f2430;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC",sans-serif;
+  display:flex;flex-direction:column;height:100dvh;overflow:hidden;
+}
+/* ---------- 顶栏 ---------- */
+header{
+  flex:0 0 auto;background:#fff;border-bottom:1px solid #e8eaef;
+  padding:10px 16px 0;position:relative;z-index:5;
+}
+.hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lb-s{display:none}
+.crumb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#8b93a3;padding:1px 0 7px}
+.crumb a{color:#1f6feb;text-decoration:none}
+.crumb a:hover{text-decoration:underline}
+.crumb .div{color:#d6dbe3}
+h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.3px;white-space:nowrap}
+h1 span{color:#8b93a3;font-weight:400;font-size:12px;margin-left:6px}
+.spacer{flex:1}
+.btn{
+  border:1px solid #dfe3ea;background:#fff;color:#3a4152;border-radius:8px;
+  padding:5px 11px;font-size:12.5px;cursor:pointer;transition:.15s;font-family:inherit;
+  white-space:nowrap;
+}
+.btn:hover{border-color:#b9c1cf;background:#fafbfc}
+.btn.on{background:#1f6feb;border-color:#1f6feb;color:#fff}
+.btn.on:hover{background:#1a5fd0}
+/* ---------- 标签搜索 ---------- */
+.searchrow{display:flex;align-items:center;gap:8px;padding:9px 0 0;position:relative}
+.qbox{
+  flex:1;display:flex;align-items:center;gap:8px;background:#f5f6f8;border:1px solid #e6e9ef;
+  border-radius:9px;padding:0 10px;transition:.15s;min-width:0;
+}
+.qbox:focus-within{background:#fff;border-color:#a9c6f7;box-shadow:0 0 0 3px rgba(31,111,235,.09)}
+.qbox svg{flex:0 0 auto;color:#a6adba}
+.qbox input{
+  flex:1;border:0;outline:0;background:transparent;font-family:inherit;font-size:13px;
+  color:#1f2430;padding:7px 0;min-width:0;
+}
+.qbox input::placeholder{color:#aab1bd}
+.qbox input::-webkit-search-cancel-button,.qbox input::-webkit-search-decoration{-webkit-appearance:none;appearance:none}
+.qbox input::-ms-clear{display:none}
+.qclear{
+  flex:0 0 auto;border:0;background:#e4e7ec;color:#6b7488;width:18px;height:18px;border-radius:50%;
+  font-size:12px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;
+  padding:0;font-family:inherit;
+}
+.qclear.show{display:flex}
+.qhint{font-size:11.5px;color:#8b93a3;padding:5px 2px 0;min-height:0}
+.qhint b{color:#1f6feb;font-weight:600}
+.qhint .op{color:#c2410c;font-weight:600;padding:0 2px}
+.qhint .none{color:#c2410c}
+.tagbar{
+  display:flex;gap:6px;overflow-x:auto;padding:9px 0 10px;scrollbar-width:none;
+}
+.tagbar::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;border:1px solid #e3e6ec;background:#fafbfc;color:#5b6478;border-radius:999px;
+  padding:4px 11px;font-size:12px;cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.chip:hover{background:#eef2f8}
+.chip.on{background:#e7f0ff;border-color:#a9c6f7;color:#1f6feb;font-weight:600}
+.chip em{font-style:normal;opacity:.55;margin-left:4px;font-size:10.5px}
+/* ---------- 卡片区 ---------- */
+main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:18px;position:relative}
+.card{
+  background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(31,36,48,.07),0 1px 3px rgba(31,36,48,.05);
+  width:100%;max-width:820px;max-height:100%;overflow:auto;
+  padding:22px;position:relative;
+}
+.card-inner{display:flex;flex-direction:column;align-items:center;gap:14px}
+.card img{max-width:100%;height:auto;display:block;border-radius:6px;cursor:zoom-in}
+.card .mbooks-highlightblock,.card .mbooks-noteblock{width:100%}
+.card .io-wrapper,.card .io-original{position:relative;width:100%;display:block}
+.card .io-original{display:flex;justify-content:center}
+.card .io-original img{width:100%}
+.hint{
+  color:#a6adba;font-size:12.5px;text-align:center;padding:6px 0;
+}
+.empty{text-align:center;color:#9aa2b1;font-size:13.5px;line-height:2.1;padding:34px 12px}
+.empty b{display:block;font-size:15px;color:#5b6478;margin-bottom:4px}
+.empty span{font-size:12px;color:#b3b9c5}
+.faceflag{
+  position:absolute;top:12px;right:14px;font-size:11px;color:#8b93a3;
+  background:#f5f6f8;border-radius:6px;padding:3px 8px;letter-spacing:.5px;
+}
+.faceflag.ans{color:#1f6feb;background:#eaf1ff}
+/* ---------- 卡片脚注 ---------- */
+.meta{
+  flex:0 0 auto;padding:0 20px 6px;display:flex;align-items:center;gap:10px;
+  flex-wrap:wrap;font-size:12px;color:#8b93a3;justify-content:center;
+}
+.meta .src{color:#6b7488}
+.meta .tg{
+  background:#f0f2f6;color:#5b6478;border-radius:5px;padding:2px 7px;font-size:11.5px;
+}
+.meta .tg.hot{background:#fff2e8;color:#c2410c}
+/* ---------- 底部工具条 ---------- */
+footer{
+  flex:0 0 auto;background:#fff;border-top:1px solid #e8eaef;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:10px;
+}
+.nav{
+  display:flex;align-items:center;gap:8px;
+}
+.nav button{
+  width:38px;height:38px;border-radius:10px;border:1px solid #dfe3ea;background:#fff;
+  color:#3a4152;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.nav button:hover{background:#f7f8fa}
+.flip{
+  flex:1;height:38px;border-radius:10px;border:1px solid #1f6feb;background:#1f6feb;color:#fff;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.5px;
+}
+.flip:hover{background:#1a5fd0}
+.flip.done{background:#fff;color:#1f6feb}
+.flip.disabled{background:#f4f5f7;border-color:#e4e7ec;color:#a6adba;cursor:default}
+.zoomhint{font-size:11.5px;color:#b3b9c5;padding:2px 0 0}
+@media (hover:hover){.zoomhint{display:none}}
+.counter{font-size:12.5px;color:#8b93a3;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:52px;text-align:center}
+.progress{position:absolute;left:0;bottom:0;height:2px;background:#1f6feb;transition:width .2s;opacity:.85}
+/* ---------- 目录抽屉 ---------- */
+.drawer{
+  position:fixed;inset:0;background:rgba(20,24,32,.35);z-index:40;display:none;
+  backdrop-filter:blur(2px);
+}
+.drawer.show{display:block}
+.panel{
+  position:absolute;right:0;top:0;bottom:0;width:min(380px,86vw);background:#fff;
+  display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.12);
+}
+.panel h2{font-size:13px;margin:0;padding:14px 16px;border-bottom:1px solid #eef0f4;color:#3a4152}
+.plist{overflow:auto;flex:1;padding:6px}
+.pitem{
+  display:flex;gap:10px;align-items:baseline;padding:9px 10px;border-radius:8px;cursor:pointer;
+  font-size:12.5px;color:#3a4152;
+}
+.pitem:hover{background:#f5f7fa}
+.pitem.cur{background:#eaf1ff;color:#1f6feb;font-weight:600}
+.pitem b{font-variant-numeric:tabular-nums;color:#a6adba;font-weight:500;min-width:24px;font-size:11.5px}
+.pitem .bk{color:#8b93a3;font-size:11px;margin-left:auto;white-space:nowrap}
+/* ---------- 大图 ---------- */
+.lightbox{
+  position:fixed;inset:0;background:rgba(18,21,27,.94);z-index:60;display:none;
+  overflow:auto;padding:16px;cursor:zoom-out;
+}
+.lightbox.show{display:block}
+.lightbox img{display:block;margin:0 auto;max-width:none;width:auto;height:auto;background:#fff;border-radius:4px}
+@media (max-width:640px){
+  main{padding:10px}
+  .card{padding:12px;border-radius:12px}
+  header{padding:8px 12px 0}
+  .meta{padding:0 12px 4px}
+  footer{padding:8px 12px calc(8px + env(safe-area-inset-bottom))}
+  .flip{font-size:13.5px}
+  .hrow{gap:6px}
+  .btn{padding:5px 9px;font-size:12px}
+  .lb-l{display:none}
+  .lb-s{display:inline}
+  h1{font-size:14px}
+  h1 span{display:none}
+}
+/* ---------- 打印区（屏幕上隐藏） ---------- */
+#printarea{display:none}
+@media print{
+  @page{size:A4 portrait;margin:12mm 11mm}
+  html,body{
+    display:block!important;height:auto!important;min-height:0!important;
+    overflow:visible!important;background:#fff!important;
+  }
+  header,main,.meta,footer,.drawer,.lightbox{display:none!important}
+  #printarea{display:block!important}
+  .pc{
+    break-inside:avoid;page-break-inside:avoid;
+    padding:0 0 6mm;margin:0 0 7mm;border-bottom:1px dashed #cdd3dd;
+  }
+  .pc:last-child{border-bottom:0;margin-bottom:0}
+  .ph{
+    display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;
+    border-left:3px solid #1f6feb;padding-left:7px;margin:0 0 4mm;
+    font-size:10pt;line-height:1.45;
+  }
+  .ph .no{color:#1f6feb;font-weight:700;font-variant-numeric:tabular-nums}
+  .ph .bk{color:#2b3140;font-weight:600}
+  .ph .tg{color:#7a8296;font-weight:400;font-size:8.5pt}
+  .pc figure{margin:0;text-align:center}
+  .pc img{
+    max-width:100%;max-height:99mm;width:auto;height:auto;
+    display:inline-block;border-radius:2px;
+  }
+  .pc .sep{
+    position:relative;border-top:1px dashed #cdd3dd;margin:3.5mm 0 3mm;text-align:center;
+    break-inside:avoid;
+  }
+  .pc .sep span{
+    position:relative;top:-7px;background:#fff;padding:0 7px;
+    font-size:8pt;color:#9aa2b1;letter-spacing:1px;
+  }
+  .pc .foot{margin-top:2mm;text-align:right;font-size:8pt;color:#aab1bd}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="crumb">__CRUMB__</div>
+  <div class="hrow">
+    <h1>__TITLE__<span id="sub"></span></h1>
+    <div class="spacer"></div>
+    <button class="btn" id="onlyKey"><span class="lb-l">只看要记</span><span class="lb-s">要记</span></button>
+    <button class="btn" id="shuffleBtn">打乱</button>
+    <button class="btn" id="tocBtn">目录</button>
+    <button class="btn" id="printBtn"><span class="lb-l">打印/PDF</span><span class="lb-s">打印</span></button>
+  </div>
+  <div class="searchrow">
+    <div class="qbox">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.2-4.2"></path></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="搜标签：空格=或（A B），竖线=且（A|B）">
+      <button class="qclear" id="qclear" title="清除">×</button>
+    </div>
+  </div>
+  <div class="qhint" id="qhint"></div>
+  <div class="tagbar" id="tagbar"></div>
+</header>
+
+<main>
+  <div class="card" id="card">
+    <div class="faceflag" id="flag">题目</div>
+    <div class="card-inner" id="inner"></div>
+  </div>
+</main>
+
+<div class="meta" id="meta"></div>
+
+<footer>
+  <div class="nav">
+    <button id="prev" title="上一张（←）">‹</button>
+  </div>
+  <button class="flip" id="flip">翻面看答案</button>
+  <div class="counter" id="counter">1 / 1</div>
+  <div class="nav">
+    <button id="next" title="下一张（→）">›</button>
+  </div>
+  <div class="progress" id="bar"></div>
+</footer>
+
+<div class="drawer" id="drawer">
+  <div class="panel">
+    <h2>目录 · 点击跳转</h2>
+    <div class="plist" id="plist"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox"><img id="bigimg" alt=""></div>
+
+<div id="printarea"></div>
+
+<script id="deckdata" type="application/json">__DATA__</script>
+<script>
+const ALL = JSON.parse(document.getElementById('deckdata').textContent);
+const LS = 'ly_deck_v1';
+let st = { marks:{}, filter:null, onlyKey:false, shuffle:false, query:'' };
+try { Object.assign(st, JSON.parse(localStorage.getItem(LS) || '{}')); } catch(e){}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(st)); }catch(e){} }
+
+let view = [];        // 当前筛选后的卡片
+let pos = 0;
+let flipped = false;
+
+const $ = id => document.getElementById(id);
+
+/* ---------- 标签搜索：空格 = 或（并集），竖线 = 且（交集） ---------- */
+// "曲面 积分"      -> [["曲面"],["积分"]]                   两张都算：含曲面 或 含积分
+// "第一型|曲面"    -> [["第一型","曲面"]]                    只留：同时含 第一型 和 曲面
+// "泰勒|展开 幂级数" -> [["泰勒","展开"],["幂级数"]]          （泰勒且展开）或（幂级数）
+function parseQuery(str){
+  return String(str || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(g => g.split(/[|｜]/).map(t => t.trim().toLowerCase()).filter(Boolean))
+    .filter(g => g.length);
+}
+function matchQuery(tags, groups){
+  if (!groups.length) return true;
+  const ts = tags.map(t => t.toLowerCase());
+  return groups.some(and => and.every(term => ts.some(t => t.indexOf(term) >= 0)));
+}
+function queryHintHTML(groups, n){
+  if (!groups.length) return '';
+  const parts = groups.map(and => and.map(t => '<b>' + t + '</b>').join('<span class="op">且</span>'));
+  const expr = parts.join('<span class="op">或</span>');
+  const tip = n === 0 ? '<span class="none">　没有匹配的卡片</span>'
+                      : '　→ 命中 <b>' + n + '</b> 张';
+  return '解释：' + expr + tip;
+}
+
+function buildView(){
+  let list = ALL.slice();
+  const groups = parseQuery(st.query);
+  if (groups.length) list = list.filter(c => matchQuery(c.tags, groups));
+  if (st.filter) list = list.filter(c => c.tags.includes(st.filter));
+  if (st.onlyKey) list = list.filter(c => c.tags.includes('要记'));
+  if (st.shuffle && !st._order) st._order = list.map(c => c.no).sort(() => Math.random()-.5);
+  if (st.shuffle && st._order) list.sort((a,b)=> st._order.indexOf(a.no) - st._order.indexOf(b.no));
+  view = list;
+  if (pos >= view.length) pos = 0;
+  buildToc();
+}
+
+function tagbar(){
+  const counts = {};
+  ALL.forEach(c => c.tags.forEach(t => counts[t] = (counts[t]||0)+1));
+  const tags = Object.entries(counts).sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0]));
+  const bar = $('tagbar');
+  bar.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = 'chip' + (st.filter || st.query ? '' : ' on');
+  all.innerHTML = '全部<em>' + ALL.length + '</em>';
+  all.onclick = () => { st.filter = null; st.query = ''; pos = 0; flipped = false; render(); };
+  bar.appendChild(all);
+  tags.forEach(([t, n]) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (st.filter === t ? ' on' : '');
+    b.innerHTML = t + '<em>' + n + '</em>';
+    b.onclick = () => {
+      st.filter = (st.filter === t ? null : t);
+      st.query = '';                    // 点标签 = 单一筛选，清掉搜索框
+      pos = 0; flipped = false; render();
+    };
+    bar.appendChild(b);
+  });
+}
+
+function render(){
+  buildView();
+  tagbar();
+  $('onlyKey').classList.toggle('on', st.onlyKey);
+  $('shuffleBtn').classList.toggle('on', st.shuffle);
+  $('sub').textContent = view.length + ' / ' + ALL.length + ' 张';
+  // 搜索框状态同步
+  const qEl = $('q');
+  if (qEl.value !== (st.query || '')) qEl.value = st.query || '';
+  $('qclear').classList.toggle('show', !!(st.query || '').length);
+  $('qhint').innerHTML = queryHintHTML(parseQuery(st.query), view.length);
+  const c = view[pos];
+  if (!c){
+    $('inner').innerHTML = '<div class="empty"><b>没有匹配的卡片</b>' +
+      '试试换个关键词，或清空搜索<br><span>空格 = 或（A B）　竖线 = 且（A|B）</span></div>';
+    $('flag').textContent = '';
+    $('meta').innerHTML = '';
+    $('counter').textContent = '0 / 0';
+    $('bar').style.width = '0';
+    const fb = $('flip');
+    fb.textContent = '无匹配卡片';
+    fb.disabled = true;
+    fb.classList.add('disabled');
+    return;
+  }
+  $('flag').textContent = flipped ? '答案' : (c.single ? '题目（含答案）' : '题目');
+  $('flag').className = 'faceflag' + (flipped ? ' ans' : '');
+  $('inner').innerHTML = flipped ? (c.back || '<div class="hint">（这一张没有单独的答案图，请看题目图）</div>')
+                                 : (c.front || '<div class="hint">（无题面图）</div>');
+  const src = c.book ? (c.book + (c.page ? ' · P' + c.page : '')) : (c.topic || '未标注出处');
+  $('meta').innerHTML = '<span class="src">' + src + '</span>' +
+    c.tags.map(t => '<span class="tg' + (t === '要记' ? ' hot' : '') + '">' + t + '</span>').join('');
+  if (c.single) {
+    const tip = document.createElement('div');
+    tip.className = 'hint';
+    tip.textContent = '※ 原牌组导出时未含遮挡层，本卡正面即答案图';
+    $('inner').appendChild(tip);
+  }
+  $('counter').textContent = (pos + 1) + ' / ' + view.length;
+  $('bar').style.width = ((pos + 1) / view.length * 100) + '%';
+  const flipBtn = $('flip');
+  if (c.single) {
+    flipBtn.textContent = '此卡正面即答案';
+    flipBtn.disabled = true;
+    flipBtn.classList.add('disabled');
+  } else {
+    flipBtn.disabled = false;
+    flipBtn.classList.remove('disabled');
+    flipBtn.textContent = flipped ? '看题目' : '翻面看答案';
+    flipBtn.classList.toggle('done', flipped);
+  }
+  $('card').scrollTop = 0;
+  $('inner').querySelectorAll('img').forEach(img => {
+    img.onclick = e => { e.stopPropagation(); showBig(img.src); };
+  });
+  const zh = document.createElement('div');
+  zh.className = 'hint zoomhint';
+  zh.textContent = '轻点图片可全屏放大看细节';
+  $('inner').appendChild(zh);
+  save();
+}
+
+function go(step){
+  if (!view.length) return;
+  pos = (pos + step + view.length) % view.length;
+  flipped = false;
+  render();
+}
+function flip(){
+  const c = view[pos];
+  if (!c || c.single) return;
+  flipped = !flipped; render();
+}
+
+function buildToc(){
+  const p = $('plist');
+  p.innerHTML = '';
+  view.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'pitem' + (i === pos ? ' cur' : '');
+    const label = c.book ? (c.book.replace('2022版数分','') + (c.page ? ' P' + c.page : '')) : (c.topic || '—');
+    d.innerHTML = '<b>' + (i+1) + '</b><span>' + label + '</span><span class="bk">' + c.tags.slice(0,2).join(' ') + '</span>';
+    d.onclick = () => { pos = i; flipped = false; $('drawer').classList.remove('show'); render(); };
+    p.appendChild(d);
+  });
+}
+
+function showBig(src){
+  const lb = $('lightbox');
+  const im = $('bigimg');
+  im.onload = () => {
+    const vw = window.innerWidth - 32;
+    im.style.width = (im.naturalWidth > vw ? im.naturalWidth : vw) + 'px';
+  };
+  im.src = src;
+  lb.classList.add('show');
+  lb.scrollTop = 0;
+}
+
+$('next').onclick = () => go(1);
+$('prev').onclick = () => go(-1);
+$('flip').onclick = flip;
+$('onlyKey').onclick = () => { st.onlyKey = !st.onlyKey; pos = 0; flipped = false; render(); };
+$('shuffleBtn').onclick = () => { st.shuffle = !st.shuffle; st._order = null; pos = 0; flipped = false; render(); };
+$('tocBtn').onclick = () => $('drawer').classList.add('show');
+
+/* ---------- 打印 / 导出 PDF ---------- */
+function pcHTML(c){
+  const src = c.book ? (c.book + (c.page ? ' · P' + c.page : '')) : (c.topic || '未标注出处');
+  const tgs = c.tags.join(' · ');
+  let h = '<section class="pc"><div class="ph"><span class="no">#' + c.no + '</span>' +
+          '<span class="bk">' + src + '</span>' +
+          (tgs ? '<span class="tg">' + tgs + '</span>' : '') + '</div>' +
+          '<figure>' + c.front + '</figure>';
+  if (!c.single) h += '<div class="sep"><span>答案</span></div><figure>' + c.back + '</figure>';
+  return h + '</section>';
+}
+function printDeck(){
+  const list = view.length ? view : ALL;
+  $('printarea').innerHTML = list.map(pcHTML).join('');
+  setTimeout(() => window.print(), 60);
+}
+window.addEventListener('afterprint', () => { $('printarea').innerHTML = ''; });
+$('printBtn').onclick = printDeck;
+$('drawer').onclick = e => { if (e.target === $('drawer')) $('drawer').classList.remove('show'); };
+$('lightbox').onclick = () => $('lightbox').classList.remove('show');
+$('card').onclick = e => { if (e.target.tagName !== 'IMG') flip(); };
+
+/* ---------- 搜索交互 ---------- */
+$('q').addEventListener('input', e => {
+  st.query = e.target.value;
+  st.filter = null;          // 输入搜索时接管标签筛选
+  pos = 0; flipped = false;
+  render();
+});
+$('qclear').onclick = () => {
+  st.query = ''; pos = 0; flipped = false;
+  render();
+  $('q').focus();
+};
+
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+  if (typing) {
+    if (e.key === 'Escape') { e.target.blur(); e.preventDefault(); }
+    return;                                  // 输入时不要抢方向键和空格
+  }
+  if (e.key === 'ArrowRight') { go(1); e.preventDefault(); }
+  else if (e.key === 'ArrowLeft') { go(-1); e.preventDefault(); }
+  else if (e.key === ' ' || e.key === 'Enter') { flip(); e.preventDefault(); }
+  else if (e.key === '/') { $('q').focus(); e.preventDefault(); }
+  else if (e.key === 'p' || e.key === 'P') { printDeck(); e.preventDefault(); }
+  else if (e.key === 'Escape') {
+    const lb = $('lightbox'), dr = $('drawer');
+    if (lb.classList.contains('show') || dr.classList.contains('show')) {
+      lb.classList.remove('show'); dr.classList.remove('show');
+    } else if (st.query) { st.query = ''; pos = 0; render(); }
+  }
+});
+
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  if ($('lightbox').classList.contains('show') || $('drawer').classList.contains('show')) return;
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
+}, {passive:true});
+
+function fromHash(){
+  let raw = (location.hash || '').replace(/^#/, '');
+  try { raw = decodeURIComponent(raw); } catch(e){}
+  const qm = raw.match(/^q=(.*)$/);
+  if (qm) {                       // #q=曲面  → 打开即预填标签搜索
+    st.query = qm[1]; st.filter = null; pos = 0; flipped = false;
+    return;
+  }
+  const m = raw.match(/^(\d+)(b?)$/);
+  if (!m) return;
+  const n = parseInt(m[1], 10) - 1;
+  if (n >= 0 && n < view.length) { pos = n; flipped = m[2] === 'b'; }
+}
+window.addEventListener('hashchange', () => { fromHash(); render(); });
+render();
+fromHash(); render();
+</script>
+</body>
+</html>
